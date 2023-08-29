@@ -70,5 +70,21 @@ app.get("/players/:playerId/matches", async (request, response) => {
   natural join match_details 
   where player_id='${playerId};`;
   const gettingmultiple = await db.all(club);
-  response.send(gettingmultiple.map((e) => res(e)));
+  response.send(gettingmultiple.map((order) => res(order)));
 });
+const gr = (gettingdata) => {
+  return {
+    playerId: gettingdata.player_id,
+    playerName: gettingdata.player_name,
+  };
+};
+app.get("/matches/:matchId/players", async (request, response) => {
+  const { matchId } = request.params;
+  const query = `select * from match_details natural join player_match_score
+    where match_id='${matchId}'`;
+  const gettingdata = await db.all(query);
+  response.send(gr(gettingdata));
+});
+app.get("",(request,response)=>{
+    const {}=
+})
