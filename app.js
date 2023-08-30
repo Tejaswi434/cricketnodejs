@@ -50,7 +50,7 @@ app.put("/players/:playerId/", async (request, response) => {
 });
 const res = (order) => {
   return {
-    match_id: order.matchId,
+    matchId: order.match_id,
     match: order.match,
     year: order.year,
   };
@@ -68,23 +68,30 @@ app.get("/players/:playerId/matches", async (request, response) => {
   const club = `select *  
   from player_match_score  
   natural join match_details 
-  where player_id='${playerId};`;
+  where player_id='${playerId}';`;
   const gettingmultiple = await db.all(club);
   response.send(gettingmultiple.map((order) => res(order)));
 });
-const gr = (gettingdata) => {
+const gr = (each) => {
   return {
-    playerId: gettingdata.player_id,
-    playerName: gettingdata.player_name,
+    playerId: each.player_id,
+    playerName: each.player_name,
   };
 };
 app.get("/matches/:matchId/players", async (request, response) => {
   const { matchId } = request.params;
-  const query = `select * from match_details natural join player_match_score
-    where match_id='${matchId}'`;
+  const query = `select * from player_details natural join  player_match_score
+    where match_id='${matchId}';`;
   const gettingdata = await db.all(query);
-  response.send(gr(gettingdata));
+  response.send(gettingdata.map((each) => gr(each)));
 });
-app.get("",(request,response)=>{
-    const {}=
-})
+app.get("/players/:playerId/playerScores", async (request, response) => {
+  const { playerId } = request.params;
+  const databases = `select player_id as playerId,player_name as playerName,sum(score) as totalScore,
+    sum(fours) as totalFours,sum(sixes) as totalSixes
+     from player_match_score Natural join player_details
+    where player_id='${playerId}';`;
+  const data = await db.all(databases);
+  response.send(data);
+});
+module.exports = app;
